@@ -52,34 +52,41 @@ function mapFactory() {
       return data
     });
     const geojson = data.responseJSON;
-    console.log(geojson)
+    console.log("IN QUERY AJAX BEFORE ADDPOLYGONS")
+    console.log(map)
     let overlayLayers = addPolygons(geojson, map);
+    console.log("IN QUERY AJAX AFTER ADDPOLYGONS")
+    console.log(map)
     let layerControl = new L.control.layers(baseLayers, overlayLayers).addTo(map);
+    console.log('END OF MAPFACTORY')
+    console.log(map)
+    applyFilters(map);
 
   });
-
 
 }
 
 
 function distanceSlider() {
   $("#distance-slider").on('input', function(){
-    console.log(this)
+
     let rad = $(this).val();
     $('#distance-label').html(rad + " Miles")
 
   })
 }
 
-function applyFilters() {
+function applyFilters(map) {
+  console.log("TOP OF APPLYFILTERS")
+  console.log(map)
   $('#apply-filters').click(function() {
     let filterValues = {
       radius: 0,
       equipment: [],
       amenities: [],
-      sportsFacilities: []
+      sports_facilities: []
     }
-
+    console.log('INSIDE JQ SELECTOR CLICK ANONYMOUS FUNCTION')
     let params = {
       'radius': $('#distance-slider').val()
     }
@@ -99,7 +106,7 @@ function applyFilters() {
     $("#sportsFacilitiesAccordion").children("input:checked").map(function() {
       selectedSportsFacilities.push(this.value);
     });
-
+    console.log(selectedSportsFacilities)
 
     if (selectedEquipment.length > 0) {
       params['equipment'] = selectedEquipment
@@ -108,7 +115,7 @@ function applyFilters() {
       params['amenities'] = selectedAmenities
     }
     if (selectedSportsFacilities.length > 0) {
-      params['sportsFacilities'] = selectedSportsFacilities
+      params['sports_facilities'] = selectedSportsFacilities
     }
     if (globals.userLlatLng != null) {
       params['latitude'] = globals.userLlatLng.latitude;
@@ -119,23 +126,33 @@ function applyFilters() {
     }
     let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
     //let queryString = $.param(params);
-    console.log(queryString);
+
 
     let data = $.getJSON('http://localhost:8001/query?' + queryString, function () {
       $.when(data).done(function () {
-        console.log('FILTER RESPONSE')
-        console.log(data)
-        return data
+        console.log('FILTER RESPONSE CALLBACK')
+        console.log(map)
+        return data;
       });
+
       const geojson = data.responseJSON;
-      console.log(geojson)
-      //let overlayLayers = addPolygons(geojson, map);
+      console.log('AFTER UNPACKING GEOJSON')
+      map.eachLayer(function(layer){
+        if (!layer.hasOwnProperty('_url')) {
+          map.removeLayer(layer)
+        }
+      })
+
+      addPolygons(geojson, map)
+
 
     });
   });
 }
 
 function addPolygons(data, map) {
+  console.log("ADDPOLYGONS")
+  console.log(map)
   let geojson = data.features;
   let polyLayerGroup = new L.FeatureGroup();
   let pointLayerGroup = new L.FeatureGroup();
@@ -197,7 +214,6 @@ $(document).ready(function() {
     $('.offcanvas-collapse').toggleClass('open')
   })
   distanceSlider();
-  applyFilters();
   mapFactory();
 
 
