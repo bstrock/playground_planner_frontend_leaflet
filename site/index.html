@@ -1,0 +1,310 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300&family=Nanum+Gothic&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""/>
+
+  <meta name="theme-color" content="#fafafa">
+</head>
+
+<body>
+<section class="bg-primary">
+  <div class="container">
+
+
+    <!--  START NAVBAR   -->
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark navbar-offcanvas">
+      <a class="navbar-brand mr-auto" href="#">Eden Prairie Playground Picker</a>
+
+      <!--     If you want to show the button online on mobile use this toggle
+
+            <button class="navbar-toggler p-0 border-0" type="button" data-toggle="offcanvas">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+      -->
+
+      <!--      This toggle button is always visible  -->
+      <button class="navbar-toggler d-block" type="button" id="navToggle">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="navbar-collapse offcanvas-collapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="navbar-text"><h2><b>Filter by...</b></h2></li>
+          <li class="nav-item">
+
+            <!-- START ACCORDION -->
+            <div class="container">
+            <div class="accordion" id="accordionExample">
+              <div class="accordion-item">
+                <h4 class="accordion-header" id="headingOne">
+
+                  <button
+                    class="accordion-button"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    aria-expanded="true"
+                    data-bs-target="#collapseOne"
+                    aria-controls="collapseOne"
+                  >
+                    Distance
+                  </button>
+                </h4>
+
+
+                <div
+                  id="collapseOne"
+                  class="accordion-collapse collapse show"
+                  aria-labelledby="headingOne"
+                  data-bs-parent="#accordionExample"
+                >
+
+                  <div class="accordion-body">
+                    <div class="slidecontainer">
+                      <label for="distance-slider">Search Within:</label>
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value="5"
+                        class="slider"
+                        id="distance-slider"
+                      >
+                      <span id="distance-label">5 Miles</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseTwo"
+                    aria-expanded="false"
+                    aria-controls="collapseTwo"
+                  >
+                    Equipment Type
+                  </button>
+                </h2>
+                <div
+                  id="collapseTwo"
+                  class="accordion-collapse collapse show"
+                  aria-labelledby="headingTwo"
+                  data-bs-parent="#accordionExample"
+                >
+                  <div class="accordion-body" id="equipmentAccordion">
+                    <input type="checkbox" id="equip1" name="equip1" value="diggers">
+                    <label for="equip1"> Diggers</label><br>
+                    <input type="checkbox" id="equip2" name="equip2" value="ladders">
+                    <label for="equip2">Ladders</label><br>
+                    <input type="checkbox" id="equip3" name="equip3" value="toddler_swings">
+                    <label for="equip3">Toddler Swings</label><br>
+                    <input type="checkbox" id="equip4" name="equip4" value="standard_swings">
+                    <label for="equip3">Standard Swings</label><br>
+                    <input type="checkbox" id="equip5" name="equip5" value="accessible_swings">
+                    <label for="equip3">Accessible Swings</label><br>
+                    <input type="checkbox" id="equip6" name="equip6" value="tire_swings">
+                    <label for="equip3">Tire Swings</label><br>
+                    <input type="checkbox" id="equip7" name="equip7" value="seesaws">
+                    <label for="equip3">See-saws</label><br>
+                    <input type="checkbox" id="equip8" name="equip8" value="climbers">
+                    <label for="equip3">Climbers</label><br>
+                    <input type="checkbox" id="equip9" name="equip9" value="spinners">
+                    <label for="equip3">Spinners</label><br>
+                    <input type="checkbox" id="equip10" name="equip10" value="bridges">
+                    <label for="equip3">Bridges</label><br>
+                    <input type="checkbox" id="equip11" name="equip11" value="tunnels">
+                    <label for="equip3">Tunnels</label><br>
+                    <input type="checkbox" id="equip12" name="equip12" value="slides">
+                    <label for="equip3">Slides</label><br>
+                    <input type="checkbox" id="equip13" name="equip13" value="thematic">
+                    <label for="equip3">Thematic Elements</label><br>
+                    <input type="checkbox" id="equip14" name="equip14" value="ropes">
+                    <label for="equip3">Rope Elements</label><br>
+                    <input type="checkbox" id="equip15" name="equip15" value="fire_poles">
+                    <label for="equip3">Fire Poles</label><br>
+                    <input type="checkbox" id="equip16" name="equip16" value="staircases">
+                    <label for="equip3">Staircases</label><br>
+                    <input type="checkbox" id="equip17" name="equip17" value="musical">
+                    <label for="equip3">Musical Equipment</label><br>
+                    <input type="checkbox" id="equip18" name="equip18" value="play_towers">
+                    <label for="equip3">Play Towers</label><br>
+                    <input type="checkbox" id="equip19" name="equip19" value="telephones">
+                    <label for="equip3">Telephones</label><br>
+                    <input type="checkbox" id="equip20" name="equip20" value="binoculars">
+                    <label for="equip3">Binoculars</label><br>
+                    <input type="checkbox" id="equip21" name="equip21" value="tactile">
+                    <label for="equip3">Tactile/Sensory</label><br>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseThree"
+                    aria-expanded="false"
+                    aria-controls="collapseThree"
+                  >
+                    Amenities Available
+                  </button>
+                </h2>
+
+                <div
+                  id="collapseThree"
+                  class="accordion-collapse collapse show"
+                  aria-labelledby="headingThree"
+                  data-bs-parent="#accordionExample"
+                >
+                  <div class="accordion-body" id="amenitiesAccordion">
+                    <input type="checkbox" id="amenities1" name="amenities1" value="splash_pad">
+                    <label for="amenities1">Splash Pad</label><br>
+                    <input type="checkbox" id="amenities2" name="amenities2" value="beach">
+                    <label for="amenities2">Beach</label><br>
+                    <input type="checkbox" id="amenities3" name="amenities3" value="changing_rooms">
+                    <label for="amenities3">Changing Rooms</label><br>
+                    <input type="checkbox" id="amenities4" name="amenities4" value="Waterfront">
+                    <label for="amenities3">Waterfront</label><br>
+                    <input type="checkbox" id="amenities5" name="amenities5" value="concessions">
+                    <label for="amenities3">Concessions</label><br>
+                    <input type="checkbox" id="amenities6" name="amenities6" value="rentals">
+                    <label for="amenities3">Activity Rentals</label><br>
+                    <input type="checkbox" id="amenities7" name="amenities7" value="indoor_restroom">
+                    <label for="amenities3">Indoor Restrooms</label><br>
+                    <input type="checkbox" id="amenities8" name="amenities8" value="portable_restroom">
+                    <label for="amenities3">Portable Restrooms</label><br>
+                    <input type="checkbox" id="amenities9" name="amenities9" value="trails">
+                    <label for="amenities3">Trails</label><br>
+                    <input type="checkbox" id="amenities10" name="amenities10" value="picnic_tables">
+                    <label for="amenities3">Picnic Tables</label><br>
+                    <input type="checkbox" id="amenities11" name="amenities11" value="benches">
+                    <label for="amenities3">Benches</label><br>
+                    <input type="checkbox" id="amenities12" name="amenities12" value="shelter">
+                    <label for="amenities3">Shelter</label><br>
+                    <input type="checkbox" id="amenities13" name="amenities13" value="sun_shades">
+                    <label for="amenities3">Sun Shades</label><br>
+                    <input type="checkbox" id="amenities14" name="amenities14" value="Grills">
+                    <label for="amenities3">Grills</label><br>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseFour"
+                    aria-expanded="false"
+                    aria-controls="collapseFour"
+                  >
+                    Sports Facilities Nearby
+                  </button>
+                </h2>
+                <div id="collapseFour"
+                     class="accordion-collapse collapse show"
+                     aria-labelledby="headingFour"
+                     data-bs-parent="#accordionExample"
+                >
+                  <div class="accordion-body" id="sportsFacilitiesAccordion">
+                    <input type="checkbox" id="sportsFacilities1" name="sportsFacilities1" value="skate_park">
+                    <label for="sportsFacilities1">Skate Park</label><br>
+                    <input type="checkbox" id="sportsFacilities2" name="sportsFacilities2" value="tennis_court">
+                    <label for="sportsFacilities2">Tennis Court</label><br>
+                    <input type="checkbox" id="sportsFacilities3" name="sportsFacilities3" value="hockey_rink">
+                    <label for="sportsFacilities3">Hockey Rink</label><br>
+                    <input type="checkbox" id="sportsFacilities4" name="sportsFacilities4" value="soccer_field">
+                    <label for="sportsFacilities3">Soccer Field</label><br>
+                    <input type="checkbox" id="sportsFacilities5" name="sportsFacilities5" value="basketball_court">
+                    <label for="sportsFacilities3">Basketball Court</label><br>
+                    <input type="checkbox" id="sportsFacilities6" name="sportsFacilities6" value="baseball_diamond">
+                    <label for="sportsFacilities3">Baseball Diamond</label><br>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div><!-- closes accordion for filters -->
+            <div class="container"><br></div>
+            <div class="container-fluid px-2 mx-auto" id="filterButtons">
+            <h5><button type="button" name="applyFilters" id="apply-filters" class="px-3 filterButton">Apply Filters</button></h5>
+              <h5><button type="button" name="resetFilters" class="px-3 filterButton">Reset Filters</button></h5>
+            </div>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="https://example.com" id="dropdown01" data-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false">User Account</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown01">
+              <a class="dropdown-item" href="#">Login</a>
+              <a class="dropdown-item" href="#">Sign Up</a>
+            </div>
+          </li>
+          <li class="nav-item">
+          </li>
+        </ul>
+
+
+      </div>
+    </nav>
+    <!--  END NAVBAR   -->
+
+  </div>
+  <!--/.container    -->
+
+</section>
+<div id="map"></div>
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+        crossorigin="anonymous"></script>
+<script src="js/vendor/modernizr-3.11.2.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+<script src="js/plugins.js"></script>
+<script src="js/bootstrap.js"></script>
+<script src="js/main.js"></script>
+
+<!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
+<script>
+  window.ga = function () {
+    ga.q.push(arguments)
+  };
+  ga.q = [];
+  ga.l = +new Date;
+  ga('create', 'UA-XXXXX-Y', 'auto');
+  ga('set', 'anonymizeIp', true);
+  ga('set', 'transport', 'beacon');
+  ga('send', 'pageview')
+</script>
+<script src="https://www.google-analytics.com/analytics.js" async></script>
+</body>
+
+</html>
