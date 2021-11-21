@@ -105,7 +105,6 @@ function applyFilters(map, layerControl) {
     $("#sportsFacilitiesAccordion").children("input:checked").map(function() {
       selectedSportsFacilities.push(this.value);
     });
-    console.log(selectedSportsFacilities);
 
     if (selectedEquipment.length > 0) {
       params['equipment'] = selectedEquipment
@@ -144,11 +143,12 @@ function applyFilters(map, layerControl) {
       map.removeLayer(zoomRadius);
       layerControl.removeLayer(globals.overlayLayers['Site Markers']);
       layerControl.removeLayer(globals.overlayLayers['Playground Outlines']);
+
       let overlayLayers = addPolygons(geojson, map);
       globals.overlayLayers = overlayLayers;
       layerControl.addOverlay(overlayLayers['Site Markers'], 'Site Markers');
       layerControl.addOverlay(overlayLayers['Playground Outlines'], 'Playground Outlines');
-
+      layerControl.addOverlay(searchRadius, 'Search Radius')
       $('.offcanvas-collapse').toggleClass('open')
 
     });
@@ -163,6 +163,19 @@ function addPolygons(data, map) {
   let pointLayerGroup = new L.FeatureGroup();
   map.addLayer(polyLayerGroup);
   map.addLayer(pointLayerGroup);
+
+  let bounds = $.getJSON('./json/ep_boundary.json', function(){
+    $.when(bounds).done(function() {
+      console.log(bounds.responseJSON);
+      L.geoJSON(bounds.responseJSON, {
+        style: {color: 'grey', opacity: .3}
+      }).addTo(map);
+
+    })
+  });
+  console.log(bounds.reponseJSON)
+
+
 
   for (let i = 0; i < geojson.length; i++) {
     var gCoords = geojson[i].geometry.coordinates;
