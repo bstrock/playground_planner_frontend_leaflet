@@ -1,8 +1,8 @@
 var globals = {
-  userLlatLng: null,
+  userLatLng: null,
   defaultLatLng: {
-    latitude: 44.8547,
-    longitude: -93.4708
+    lat: 44.8547,
+    lng: -93.4708
   }
 }
 
@@ -30,7 +30,6 @@ function mapFactory() {
   map.on('locationfound', onLocationFound);
 
   map.locate({setView: true, maxZoom: 14});
-
 
   let mbAttr = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
 
@@ -117,13 +116,9 @@ function applyFilters(map) {
     if (selectedSportsFacilities.length > 0) {
       params['sports_facilities'] = selectedSportsFacilities
     }
-    if (globals.userLlatLng != null) {
-      params['latitude'] = globals.userLlatLng.latitude;
-      params['longitude'] = globals.userLlatLng.longitude;
-    } else {
-      params['latitude'] = globals.defaultLatLng.latitude;
-      params['longitude'] = globals.defaultLatLng.longitude;
-    }
+    console.log(globals)
+    globals.latlng != null ? params['latitude'] = globals.latlng.lat : params['latitude'] = globals.defaultLatLng.lat
+    globals.latlng != null ? params['longitude'] = globals.latlng.lng : params['longitude'] = globals.defaultLatLng.lng
     let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
     //let queryString = $.param(params);
 
@@ -141,10 +136,15 @@ function applyFilters(map) {
         if (!layer.hasOwnProperty('_url')) {
           map.removeLayer(layer)
         }
-      })
+      });
+      let center = [params['latitude'], params['longitude']]
 
-      addPolygons(geojson, map)
-
+      L.marker(center).addTo(map)
+      let searchRadius = L.circle(center, (params['radius'] * 1609.34), {color: 'grey', opacity: .4}).addTo(map);
+      let zoomRadius = L.circle(center, .95 * (params['radius'] * 1609.34), {color: 'white', opacity: 0}).addTo(map)
+      map.fitBounds(zoomRadius.getBounds())
+      map.removeLayer(zoomRadius)
+      addPolygons(geojson, map);
 
     });
   });
@@ -158,10 +158,8 @@ function addPolygons(data, map) {
   let pointLayerGroup = new L.FeatureGroup();
   map.addLayer(polyLayerGroup);
   map.addLayer(pointLayerGroup);
-  globals.layerGroupIDs = {
-    'Site Markers': pointLayerGroup._leaflet_id,
-    'Playground Polygons': polyLayerGroup._leaflet_id
-  }
+  polyLayerGroup._leaflet_id = 'poly'
+  pointLayerGroup._leaflet_id = 'point'
 
   for (let i = 0; i < geojson.length; i++) {
     var gCoords = geojson[i].geometry.coordinates;
