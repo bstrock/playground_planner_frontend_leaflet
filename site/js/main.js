@@ -10,7 +10,10 @@ function mapFactory() {
 
 
   let map = L.map('map', {zoomControl: false}).setView([44.8547, -93.4708], 13);
-
+  map.on('click', function (){
+    $('.offcanvas-collapse').removeClass('open')
+    console.log('CLICK')
+  })
   let streetLayer = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
@@ -67,8 +70,8 @@ function mapFactory() {
 function distanceSlider() {
   $("#distance-slider").on('input', function(){
 
-    let rad = $(this).val();
-    $('#distance-label').html(rad + " Miles");
+    let rad = $(this).val() * .5;
+    $('#distance-label').html(rad + " ");
   });
 }
 
@@ -84,7 +87,7 @@ function applyFilters(map, layerControl) {
     }
     console.log('INSIDE JQ SELECTOR CLICK ANONYMOUS FUNCTION')
     let params = {
-      'radius': $('#distance-slider').val()
+      'radius': $('#distance-slider').val() * .5
     }
 
     let selectedEquipment = [];
@@ -136,7 +139,7 @@ function applyFilters(map, layerControl) {
 
       L.marker(center).addTo(map);
       let searchRadius = L.circle(center, (params['radius'] * 1609.34), {color: 'grey', opacity: .4}).addTo(map);
-      let zoomRadius = L.circle(center, .90 * (params['radius'] * 1609.34), {color: 'white', opacity: 0}).addTo(map);
+      let zoomRadius = L.circle(center, .9 * (params['radius'] * 1609.34), {color: 'white', opacity: 0}).addTo(map);
       map.fitBounds(zoomRadius.getBounds());
       map.removeLayer(zoomRadius);
       layerControl.removeLayer(globals.overlayLayers['Site Markers']);
@@ -146,6 +149,7 @@ function applyFilters(map, layerControl) {
       layerControl.addOverlay(overlayLayers['Site Markers'], 'Site Markers');
       layerControl.addOverlay(overlayLayers['Playground Outlines'], 'Playground Outlines');
 
+      $('.offcanvas-collapse').toggleClass('open')
 
     });
   });
@@ -205,6 +209,11 @@ $(document).ready(function() {
   var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'))
   var collapseList = collapseElementList.map(function (collapseEl) {
     return new bootstrap.Collapse(collapseEl)
+  })
+
+  var offcanvasElementList = [].slice.call(document.querySelectorAll('.offcanvas'))
+  var offcanvasList = offcanvasElementList.map(function (offcanvasEl) {
+    return new bootstrap.Offcanvas(offcanvasEl)
   })
 
   $('[data-toggle="offcanvas"], #navToggle').on('click', function () {
