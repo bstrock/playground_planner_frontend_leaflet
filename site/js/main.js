@@ -22,8 +22,8 @@ function mapFactory() {
 
   function onLocationFound(e) {
     var radius = e.accuracy;
-    globals['latlng'] = e.latlng
-    L.marker(e.latlng).addTo(map)
+    globals['latlng'] = e.latlng;
+    L.marker(e.latlng).addTo(map);
     L.circle(e.latlng, radius).addTo(map);
   }
 
@@ -51,15 +51,13 @@ function mapFactory() {
       return data
     });
     const geojson = data.responseJSON;
-    console.log("IN QUERY AJAX BEFORE ADDPOLYGONS")
-    console.log(map)
+    console.log("IN QUERY AJAX BEFORE ADDPOLYGONS");
     let overlayLayers = addPolygons(geojson, map);
-    console.log("IN QUERY AJAX AFTER ADDPOLYGONS")
-    console.log(map)
+    globals['overlayLayers'] = overlayLayers;
+    console.log("IN QUERY AJAX AFTER ADDPOLYGONS");
     let layerControl = new L.control.layers(baseLayers, overlayLayers).addTo(map);
-    console.log('END OF MAPFACTORY')
-    console.log(map)
-    applyFilters(map);
+    console.log('END OF MAPFACTORY');
+    applyFilters(map, layerControl);
 
   });
 
@@ -70,12 +68,11 @@ function distanceSlider() {
   $("#distance-slider").on('input', function(){
 
     let rad = $(this).val();
-    $('#distance-label').html(rad + " Miles")
-
-  })
+    $('#distance-label').html(rad + " Miles");
+  });
 }
 
-function applyFilters(map) {
+function applyFilters(map, layerControl) {
   console.log("TOP OF APPLYFILTERS")
   console.log(map)
   $('#apply-filters').click(function() {
@@ -90,9 +87,9 @@ function applyFilters(map) {
       'radius': $('#distance-slider').val()
     }
 
-    let selectedEquipment = []
-    let selectedAmenities = []
-    let selectedSportsFacilities = []
+    let selectedEquipment = [];
+    let selectedAmenities = [];
+    let selectedSportsFacilities = [];
 
     $("#equipmentAccordion").children("input:checked").map(function() {
       selectedEquipment.push(this.value);
@@ -105,7 +102,7 @@ function applyFilters(map) {
     $("#sportsFacilitiesAccordion").children("input:checked").map(function() {
       selectedSportsFacilities.push(this.value);
     });
-    console.log(selectedSportsFacilities)
+    console.log(selectedSportsFacilities);
 
     if (selectedEquipment.length > 0) {
       params['equipment'] = selectedEquipment
@@ -116,35 +113,39 @@ function applyFilters(map) {
     if (selectedSportsFacilities.length > 0) {
       params['sports_facilities'] = selectedSportsFacilities
     }
-    console.log(globals)
     globals.latlng != null ? params['latitude'] = globals.latlng.lat : params['latitude'] = globals.defaultLatLng.lat
     globals.latlng != null ? params['longitude'] = globals.latlng.lng : params['longitude'] = globals.defaultLatLng.lng
     let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
     //let queryString = $.param(params);
 
-
     let data = $.getJSON('http://localhost:8001/query?' + queryString, function () {
       $.when(data).done(function () {
-        console.log('FILTER RESPONSE CALLBACK')
-        console.log(map)
+        console.log('FILTER RESPONSE CALLBACK');
+        console.log(map);
         return data;
       });
 
       const geojson = data.responseJSON;
-      console.log('AFTER UNPACKING GEOJSON')
+      console.log('AFTER UNPACKING GEOJSON');
       map.eachLayer(function(layer){
         if (!layer.hasOwnProperty('_url')) {
-          map.removeLayer(layer)
+          map.removeLayer(layer);
         }
       });
-      let center = [params['latitude'], params['longitude']]
+      let center = [params['latitude'], params['longitude']];
 
-      L.marker(center).addTo(map)
+      L.marker(center).addTo(map);
       let searchRadius = L.circle(center, (params['radius'] * 1609.34), {color: 'grey', opacity: .4}).addTo(map);
-      let zoomRadius = L.circle(center, .95 * (params['radius'] * 1609.34), {color: 'white', opacity: 0}).addTo(map)
-      map.fitBounds(zoomRadius.getBounds())
-      map.removeLayer(zoomRadius)
-      addPolygons(geojson, map);
+      let zoomRadius = L.circle(center, .90 * (params['radius'] * 1609.34), {color: 'white', opacity: 0}).addTo(map);
+      map.fitBounds(zoomRadius.getBounds());
+      map.removeLayer(zoomRadius);
+      layerControl.removeLayer(globals.overlayLayers['Site Markers']);
+      layerControl.removeLayer(globals.overlayLayers['Playground Outlines']);
+      let overlayLayers = addPolygons(geojson, map);
+      globals.overlayLayers = overlayLayers;
+      layerControl.addOverlay(overlayLayers['Site Markers'], 'Site Markers');
+      layerControl.addOverlay(overlayLayers['Playground Outlines'], 'Playground Outlines');
+
 
     });
   });
@@ -158,8 +159,6 @@ function addPolygons(data, map) {
   let pointLayerGroup = new L.FeatureGroup();
   map.addLayer(polyLayerGroup);
   map.addLayer(pointLayerGroup);
-  polyLayerGroup._leaflet_id = 'poly'
-  pointLayerGroup._leaflet_id = 'point'
 
   for (let i = 0; i < geojson.length; i++) {
     var gCoords = geojson[i].geometry.coordinates;
