@@ -1,7 +1,7 @@
 var globals = {
   userLatLng: null,
   defaultLatLng: {
-    lat: 44.8547,
+    lat: 44.8497,
     lng: -93.4708
   }
 }
@@ -9,7 +9,7 @@ var globals = {
 function mapFactory() {
 
 
-  let map = L.map('map', {zoomControl: false}).setView([44.8547, -93.4708], 13);
+  let map = L.map('map', {zoomControl: false}).setView([44.855, -93.4708], 12.5);
   map.on('click', function (){
     $('.offcanvas-collapse').removeClass('open')
     console.log('CLICK')
@@ -31,8 +31,6 @@ function mapFactory() {
   }
 
   map.on('locationfound', onLocationFound);
-
-  map.locate({setView: true, maxZoom: 14});
 
   let mbAttr = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
 
@@ -56,9 +54,24 @@ function mapFactory() {
     const geojson = data.responseJSON;
     console.log("IN QUERY AJAX BEFORE ADDPOLYGONS");
     let overlayLayers = addPolygons(geojson, map);
-    globals['overlayLayers'] = overlayLayers;
+    globals.overlayLayers = overlayLayers;
+
+
+
     console.log("IN QUERY AJAX AFTER ADDPOLYGONS");
     let layerControl = new L.control.layers(baseLayers, overlayLayers).addTo(map);
+
+    let bounds = $.getJSON('./json/ep_boundary.json', function () {
+      $.when(bounds).done(function () {
+
+        let epBoundary = L.geoJSON(bounds.responseJSON, {
+          style: {color: 'black', fillOpacity: 0}
+        }).addTo(map);
+        layerControl.addOverlay(epBoundary, 'Eden Prairie City Boundary');
+        overlayLayers['Eden Prairie City Boundary'] = epBoundary;
+      })
+    });
+
     console.log('END OF MAPFACTORY');
     applyFilters(map, layerControl);
 
@@ -79,17 +92,14 @@ function applyFilters(map, layerControl) {
   console.log("TOP OF APPLYFILTERS")
   console.log(map)
   $('#apply-filters').click(function() {
-    let filterValues = {
-      radius: 0,
-      equipment: [],
-      amenities: [],
-      sports_facilities: []
-    }
+
+    // GET THE SEARCH RADIUS
     console.log('INSIDE JQ SELECTOR CLICK ANONYMOUS FUNCTION')
     let params = {
       'radius': $('#distance-slider').val() * .5
     }
 
+    // GET THE CHECKED FILTER OPTIONS
     let selectedEquipment = [];
     let selectedAmenities = [];
     let selectedSportsFacilities = [];
@@ -106,6 +116,7 @@ function applyFilters(map, layerControl) {
       selectedSportsFacilities.push(this.value);
     });
 
+    // CHECK FOR SELECTIONS AND ADD TO QUERY PARAMETERS
     if (selectedEquipment.length > 0) {
       params['equipment'] = selectedEquipment
     }
@@ -115,27 +126,41 @@ function applyFilters(map, layerControl) {
     if (selectedSportsFacilities.length > 0) {
       params['sports_facilities'] = selectedSportsFacilities
     }
+
+    // GET THE LAT/LNG; USE DEFAULT IF USER NOT LOCATED
     globals.latlng != null ? params['latitude'] = globals.latlng.lat : params['latitude'] = globals.defaultLatLng.lat
     globals.latlng != null ? params['longitude'] = globals.latlng.lng : params['longitude'] = globals.defaultLatLng.lng
+
+    // BUILD THE QUERY STRING
     let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
     //let queryString = $.param(params);
 
+    // SEND THE QUERY AND GET THE DATA
     let data = $.getJSON('http://localhost:8001/query?' + queryString, function () {
       $.when(data).done(function () {
         console.log('FILTER RESPONSE CALLBACK');
-        console.log(map);
+
         return data;
       });
 
+      // UNPACK THE GEOJSON
       const geojson = data.responseJSON;
       console.log('AFTER UNPACKING GEOJSON');
+
+      // REMOVE EXISTING LAYERS
       map.eachLayer(function(layer){
+        // DON'T REMOVE BASE LAYERS
         if (!layer.hasOwnProperty('_url')) {
           map.removeLayer(layer);
         }
       });
+
+      // DEFINE CENTER OF QUERY
       let center = [params['latitude'], params['longitude']];
 
+      // ADD A MARKER FOR THE CENTER (USER LOCATION OR DEFAULT)
+      // ALSO ADD A CIRCLE FOR THE SEARCH RADIUS VALUE
+      // USE A ZOOM CIRCLE TO MAKE THE VIEW A LITTLE TIGHTER
       L.marker(center).addTo(map);
       let searchRadius = L.circle(center, (params['radius'] * 1609.34), {color: 'grey', opacity: .4}).addTo(map);
       let zoomRadius = L.circle(center, .9 * (params['radius'] * 1609.34), {color: 'white', opacity: 0}).addTo(map);
@@ -143,12 +168,37 @@ function applyFilters(map, layerControl) {
       map.removeLayer(zoomRadius);
       layerControl.removeLayer(globals.overlayLayers['Site Markers']);
       layerControl.removeLayer(globals.overlayLayers['Playground Outlines']);
+      layerControl.removeLayer(globals.overlayLayers['Eden Prairie City Boundary'])
+      if (globals.overlayLayers.hasOwnProperty('Search Radius')) {
+        layerControl.removeLayer(globals.overlayLayers['Search Radius'])
+      }
 
+      // ADD THE QUERY-RETURNED SITES TO THE MAP
       let overlayLayers = addPolygons(geojson, map);
+
+      let bounds = $.getJSON('./json/ep_boundary.json', function () {
+        $.when(bounds).done(function () {
+          console.log(bounds.responseJSON);
+          let epBoundary = L.geoJSON(bounds.responseJSON, {
+            style: {color: 'black', fillOpacity: 0}
+          }).addTo(map);
+          overlayLayers['Eden Prairie City Boundary'] = epBoundary;
+          layerControl.addOverlay(epBoundary, 'Eden Prairie City Boundary')
+
+        })
+      });
+
+      overlayLayers['Search Radius'] = searchRadius;
+
+      // SITUATE LAYERS IN LAYER CONTROL
       globals.overlayLayers = overlayLayers;
+      console.log(overlayLayers)
       layerControl.addOverlay(overlayLayers['Site Markers'], 'Site Markers');
       layerControl.addOverlay(overlayLayers['Playground Outlines'], 'Playground Outlines');
       layerControl.addOverlay(searchRadius, 'Search Radius')
+
+
+      // CLOSE THE SIDEBAR TO RETURN VIEW TO MAP
       $('.offcanvas-collapse').toggleClass('open')
 
     });
@@ -164,17 +214,10 @@ function addPolygons(data, map) {
   map.addLayer(polyLayerGroup);
   map.addLayer(pointLayerGroup);
 
-  let bounds = $.getJSON('./json/ep_boundary.json', function(){
-    $.when(bounds).done(function() {
-      console.log(bounds.responseJSON);
-      L.geoJSON(bounds.responseJSON, {
-        style: {color: 'grey', opacity: .3}
-      }).addTo(map);
-
-    })
-  });
-  console.log(bounds.reponseJSON)
-
+  let overlayLayer = {
+    'Site Markers': pointLayerGroup,
+    'Playground Outlines': polyLayerGroup
+  }
 
 
   for (let i = 0; i < geojson.length; i++) {
@@ -201,21 +244,17 @@ function addPolygons(data, map) {
       iconUrl: 'img/icons/playground.png',
       shadowUrl: 'img/icons/playground_shadow.png',
 
-      iconAnchor:   [26, 44], // point of the icon which will correspond to marker's location
+      iconAnchor: [26, 44], // point of the icon which will correspond to marker's location
       shadowAnchor: [26, 44],  // the same for the shadow
-      popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
+      popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
     });
 
     let marker = new L.Marker(centerArray, {icon: icon})
     pointLayerGroup.addLayer(marker)
   }
 
-  return {
-    'Site Markers': pointLayerGroup,
-    'Playground Outlines': polyLayerGroup
-  }
+  return overlayLayer
 }
-
 
 $(document).ready(function() {
   // executes when HTML-Document is loaded and DOM is ready
