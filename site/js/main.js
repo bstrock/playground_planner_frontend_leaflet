@@ -283,6 +283,28 @@ function applyFilters(map, layerControl) {
   });
 }
 
+function popupFactory(feature) {
+  console.log("START OF POPUPFACTORY")
+
+
+  let props = feature.properties;
+  console.log(props)
+  let name = props.site_name;
+
+  let popupString = `
+  <div class="container">
+    <div class="card">
+        <div class="card-header">`
+          + name +
+        `</div>
+    </div>
+  </div>
+  `
+
+
+  return popupString
+}
+
 function addPolygons(data, map) {
   console.log("ADDPOLYGONS")
   console.log(map)
@@ -328,6 +350,11 @@ function addPolygons(data, map) {
     });
 
     let marker = new L.Marker(centerArray, {icon: icon})
+    let popupString = popupFactory(geojson[i]) // we're in a loop, remember?
+    let popup = L.popup()
+        .setLatLng(center)
+        .setContent(popupString)
+    marker.bindPopup(popup)
     pointLayerGroup.addLayer(marker)
   }
 
