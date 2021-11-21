@@ -74,11 +74,59 @@ function mapFactory() {
 
     console.log('END OF MAPFACTORY');
     applyFilters(map, layerControl);
-
+    reinitializeMapOverlays(map, layerControl);
   });
 
 }
 
+function reinitializeMapOverlays(map, layerControl) {
+  $("#reset-filters").click(function() {
+    let data = $.getJSON('http://localhost:8001/query?latitude=44.8547&longitude=-93.4708&radius=10', function () {
+      $.when(data).done(function () {
+        return data
+      });
+      const geojson = data.responseJSON;
+      console.log("IN QUERY AJAX BEFORE ADDPOLYGONS");
+
+      // REMOVE EXISTING LAYERS
+      map.eachLayer(function(layer){
+        // DON'T REMOVE BASE LAYERS
+        if (!layer.hasOwnProperty('_url')) {
+          map.removeLayer(layer);
+        }
+      });
+
+      layerControl.removeLayer(globals.overlayLayers['Site Markers']);
+      layerControl.removeLayer(globals.overlayLayers['Playground Outlines']);
+      layerControl.removeLayer(globals.overlayLayers['Eden Prairie City Boundary'])
+      if (globals.overlayLayers.hasOwnProperty('Search Radius')) {
+        layerControl.removeLayer(globals.overlayLayers['Search Radius'])
+      }
+
+      let overlayLayers = addPolygons(geojson, map);
+      globals.overlayLayers = overlayLayers;
+
+      console.log("IN QUERY AJAX AFTER ADDPOLYGONS");
+
+      let bounds = $.getJSON('./json/ep_boundary.json', function () {
+        $.when(bounds).done(function () {
+
+          let epBoundary = L.geoJSON(bounds.responseJSON, {
+            style: {color: 'black', fillOpacity: 0}
+          }).addTo(map);
+          layerControl.addOverlay(epBoundary, 'Eden Prairie City Boundary');
+          overlayLayers['Eden Prairie City Boundary'] = epBoundary;
+        })
+      });
+
+      layerControl.addOverlay(overlayLayers['Site Markers'], 'Site Markers');
+      layerControl.addOverlay(overlayLayers['Playground Outlines'], 'Playground Outlines');
+      map.setView([44.855, -93.4708], 12.5)
+      console.log('END OF RE-INITIALIZE MAP OVERLAYS');
+
+    });
+  });
+}
 
 function distanceSlider() {
   $("#distance-slider").on('input', function(){
@@ -86,6 +134,14 @@ function distanceSlider() {
     let rad = $(this).val() * .5;
     $('#distance-label').html(rad + " ");
   });
+}
+
+function resetFilters() {
+  console.log("TOP OF RESETFILTERS")
+  $('#reset-filters').click(function() {
+    console.log('CLICKED RESET FILTERS')
+  })
+
 }
 
 function applyFilters(map, layerControl) {
