@@ -2,14 +2,14 @@ var globals = {
   userLatLng: null,
   defaultLatLng: {
     lat: 44.8497,
-    lng: -93.4708
+    lng: -93.46
   }
 }
 
 function mapFactory() {
 
 
-  let map = L.map('map', {zoomControl: false}).setView([44.855, -93.4708], 12.5);
+  let map = L.map('map', {zoomControl: false}).setView([44.855, -93.46], 13);
   map.on('click', function (){
     $('.offcanvas-collapse').removeClass('open')
     console.log('CLICK')
@@ -75,6 +75,9 @@ function mapFactory() {
     console.log('END OF MAPFACTORY');
     applyFilters(map, layerControl);
     reinitializeMapOverlays(map, layerControl);
+    distanceSlider();
+
+
   });
 
 }
@@ -123,6 +126,25 @@ function reinitializeMapOverlays(map, layerControl) {
       layerControl.addOverlay(overlayLayers['Playground Outlines'], 'Playground Outlines');
       map.setView([44.855, -93.4708], 12.5)
       console.log('END OF RE-INITIALIZE MAP OVERLAYS');
+
+      $('#distance-slider').val(8)
+
+
+      $("#equipmentAccordion").children("input:checked").map(function() {
+        this.checked = false;
+      });
+
+      $("#amenitiesAccordion").children("input:checked").map(function() {
+        this.checked = false;
+      });
+
+      $("sportsFacilitiesAccordion").children("input:checked").map(function() {
+        this.checked = false;
+      });
+      $('#distance-label').html("4 ");
+
+      $('.offcanvas-collapse').toggleClass('open')
+
 
     });
   });
@@ -219,7 +241,7 @@ function applyFilters(map, layerControl) {
       // USE A ZOOM CIRCLE TO MAKE THE VIEW A LITTLE TIGHTER
       L.marker(center).addTo(map);
       let searchRadius = L.circle(center, (params['radius'] * 1609.34), {color: 'grey', opacity: .4}).addTo(map);
-      let zoomRadius = L.circle(center, .9 * (params['radius'] * 1609.34), {color: 'white', opacity: 0}).addTo(map);
+      let zoomRadius = L.circle(center, .8 * (params['radius'] * 1609.34), {color: 'white', opacity: 0}).addTo(map);
       map.fitBounds(zoomRadius.getBounds());
       map.removeLayer(zoomRadius);
       layerControl.removeLayer(globals.overlayLayers['Site Markers']);
@@ -327,7 +349,6 @@ $(document).ready(function() {
   $('[data-toggle="offcanvas"], #navToggle').on('click', function () {
     $('.offcanvas-collapse').toggleClass('open')
   })
-  distanceSlider();
   mapFactory();
 
 
