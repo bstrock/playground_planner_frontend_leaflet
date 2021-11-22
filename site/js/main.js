@@ -9,7 +9,7 @@ var globals = {
 function mapFactory() {
 
 
-  let map = L.map('map', {zoomControl: false}).setView([44.855, -93.46], 13);
+  let map = L.map('map', {zoomControl: false}).setView([44.855, -93.46], 12.5);
   map.on('click', function (){
     $('.offcanvas-collapse').removeClass('open')
     console.log('CLICK')
@@ -123,7 +123,7 @@ function reinitializeMapOverlays(map, layerControl) {
 
       layerControl.addOverlay(overlayLayers['Site Markers'], 'Site Markers');
       layerControl.addOverlay(overlayLayers['Playground Outlines'], 'Playground Outlines');
-      map.setView([44.855, -93.4708], 12.5)
+      map.setView([44.855, -93.46], 13)
       console.log('END OF RE-INITIALIZE MAP OVERLAYS');
 
       $('#distance-slider').val(8)
@@ -294,6 +294,7 @@ function popupFactory(feature, center) {
   let keys = Object.keys(props)
   let stars = []
   let comments = []
+
   if (keys.includes('reviews')) {
     let reviews = props['reviews'];
     for (var i = 0; i < reviews.length; i++) {
@@ -306,11 +307,14 @@ function popupFactory(feature, center) {
   if (stars.length > 0) {
     let starVal = Math.round(average(stars))
     for (var i = 0; i < starVal; i++)
-    starText += '<img src="img/icons/star.png" height="20" width="20"> '
+    starText += '<img src="img/icons/star.png" height="15" width="15"> '
   } else {
     starText = 'No Reviews'
   }
 
+  if (stars.length > 0) {
+    starText += '(' + stars.length + " Reviews)"
+  }
 
   let directionsUrl = 'https://www.google.com/maps/dir/Current+Location/' + center.lat + ',' + center.lng
 
