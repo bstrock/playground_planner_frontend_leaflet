@@ -283,14 +283,36 @@ function applyFilters(map, layerControl) {
 }
 
 function popupFactory(feature, center) {
+  const average = (array) => array.reduce((a, b) => a + b) / array.length;
   console.log("START OF POPUPFACTORY")
 
 
   let props = feature.properties;
-  console.log(props)
+  if (props.site_id === "S001") {
+
+  }
+  let keys = Object.keys(props)
+  let stars = []
+  let comments = []
+  if (keys.includes('reviews')) {
+    let reviews = props['reviews'];
+    for (var i = 0; i < reviews.length; i++) {
+      stars.push(reviews[i].stars)
+      comments.push(reviews[i].comment)
+    }
+  }
+  console.log(stars)
+  let starText = ''
+  if (stars.length > 0) {
+    let starVal = Math.round(average(stars))
+    for (var i = 0; i < starVal; i++)
+    starText += '<img src="img/icons/star.png" height="20" width="20"> '
+  } else {
+    starText = 'No Reviews'
+  }
+
 
   let directionsUrl = 'https://www.google.com/maps/dir/Current+Location/' + center.lat + ',' + center.lng
-
 
   let popupString = `
   <div class="container">
@@ -305,13 +327,18 @@ function popupFactory(feature, center) {
                     <span class="text-left">`
                     + props.addr_street1 + '<br>' + props.addr_city + ', ' + props.addr_state + ' '+ props.addr_zip +
                   `</span>
-                
-                
           </div>
           <div class="col container">
-            <span class="text-right align-right w-25">
-                <a href="` + directionsUrl + `" type="button" class="btn btn-light directions-button" target="_blank" rel="noopener noreferrer">Directions</a>
-            </span>
+            <div class="row">
+              <span class="text-right align-right w-25">
+                  <a href="` + directionsUrl + `" type="button" class="btn btn-light directions-button" target="_blank" rel="noopener noreferrer">Directions</a>
+              </span>
+            </div>
+            <div class="row">
+                <span>`
+                + starText +
+               `</span>
+            </div>
           </div>
         </div>
     </div>
