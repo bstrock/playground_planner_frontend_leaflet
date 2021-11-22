@@ -22,12 +22,10 @@ function mapFactory() {
     zoomOffset: -1,
     accessToken: 'pk.eyJ1IjoiYnN0cm9jayIsImEiOiJja3cxZnN6MTRhMzBlMnVxcGtvZWtja3RhIn0.2Xs4HMBYwnUQh5wurxmeDA'
   }).addTo(map);
-
+  map.locate({setView: false})
   function onLocationFound(e) {
-    var radius = e.accuracy;
     globals['latlng'] = e.latlng;
-    L.marker(e.latlng).addTo(map);
-    L.circle(e.latlng, radius).addTo(map);
+
   }
 
   map.on('locationfound', onLocationFound);
@@ -76,6 +74,7 @@ function mapFactory() {
     applyFilters(map, layerControl);
     reinitializeMapOverlays(map, layerControl);
     distanceSlider();
+
 
 
   });
@@ -283,20 +282,38 @@ function applyFilters(map, layerControl) {
   });
 }
 
-function popupFactory(feature) {
+function popupFactory(feature, center) {
   console.log("START OF POPUPFACTORY")
 
 
   let props = feature.properties;
   console.log(props)
-  let name = props.site_name;
+
+  let directionsUrl = 'https://www.google.com/maps/dir/Current+Location/' + center.lat + ',' + center.lng
+
 
   let popupString = `
   <div class="container">
     <div class="card">
-        <div class="card-header">`
-          + name +
+        <div class="card-header lead text-center">`
+          + props.site_name +
         `</div>
+        <div class="card-body row address-box">
+            <div class="col container popup-address">
+                
+                    <span class="text-md mt-1"><b>Address: </b></span><br>
+                    <span class="text-left">`
+                    + props.addr_street1 + '<br>' + props.addr_city + ', ' + props.addr_state + ' '+ props.addr_zip +
+                  `</span>
+                
+                
+          </div>
+          <div class="col container">
+            <span class="text-right align-right w-25">
+                <a href="` + directionsUrl + `" type="button" class="btn btn-light directions-button" target="_blank" rel="noopener noreferrer">Directions</a>
+            </span>
+          </div>
+        </div>
     </div>
   </div>
   `
@@ -350,8 +367,8 @@ function addPolygons(data, map) {
     });
 
     let marker = new L.Marker(centerArray, {icon: icon})
-    let popupString = popupFactory(geojson[i]) // we're in a loop, remember?
-    let popup = L.popup()
+    let popupString = popupFactory(geojson[i], center) // we're in a loop, remember?
+    let popup = L.popup({maxWidth: 350, minWidth: 350})
         .setLatLng(center)
         .setContent(popupString)
     marker.bindPopup(popup)
@@ -377,6 +394,7 @@ $(document).ready(function() {
     $('.offcanvas-collapse').toggleClass('open')
   })
   mapFactory();
+
 
 
 // document ready

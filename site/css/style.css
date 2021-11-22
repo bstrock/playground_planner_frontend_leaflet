@@ -135,3 +135,23 @@ body {
   align-items: center;
   align-content: center;
 }
+
+.custom-button {
+  background-color: #ffffff;
+  border-radius: 5px;
+  border-width: 3px;
+  border-color: #96f97b
+}
+
+.leaflet-popup-content-wrapper {
+  font-family: 'Jost', sans-serif;
+
+}
+
+.card-header {
+  background-color: #c5e8ef;
+}
+
+.card-body{
+  background-color: mintcream;
+}
