@@ -268,11 +268,17 @@ function applyFilters(map, layerControl) {
 
         })
       });
+      if (globals.hasOwnProperty('user')) {
+        layerControl.removeLayer(globals.userFavoriteOverlay['User Favorites'])
+        configureUserFavorites(map, globals.user);
+        layerControl.addOverlay(globals.userFavoriteOverlay['User Favorites'], 'User Favorites')
+      }
 
       overlayLayers['Search Radius'] = searchRadius;
 
       // SITUATE LAYERS IN LAYER CONTROL
       globals.overlayLayers = overlayLayers;
+
       layerControl.addOverlay(overlayLayers['Site Markers'], 'Site Markers');
       layerControl.addOverlay(overlayLayers['Playground Outlines'], 'Playground Outlines');
       layerControl.addOverlay(searchRadius, 'Search Radius')
@@ -411,6 +417,34 @@ function addPolygons(data, map) {
   return overlayLayer
 }
 
+function configureUserFavorites(map, user) {
+  let userFavoritesLayer = new L.FeatureGroup();
+  map.addLayer(userFavoritesLayer);
+
+  // change map marker icon to favorite icon
+  map.eachLayer(function (layer) {
+    if (layer.hasOwnProperty('data')) {  // it's a marker
+      if (user.favorite_parks.includes(layer.data.site_id)) {  // it's a favorite
+        // here's the marker
+        var icon = L.icon({
+          iconUrl: 'img/icons/heart.png',
+          shadowUrl: 'img/icons/heart_shadow.png',
+
+          iconAnchor: [33, 65], // point of the icon which will correspond to marker's location
+          shadowAnchor: [33, 65],  // the same for the shadow
+          popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
+        });
+
+        layer.setIcon(icon);
+        globals.overlayLayers['Site Markers'].removeLayer(layer);
+        userFavoritesLayer.addLayer(layer);
+      }
+    }
+  });
+
+  globals.userFavoriteOverlay = {'User Favorites': userFavoritesLayer}
+}
+
 function loginUser(map, layerControl){
   $('#submitLogin').click(function (e){
     //stop submit the form, we will post it manually.
@@ -467,32 +501,7 @@ function loginUser(map, layerControl){
             // change login/signup buttons to logout button
             // we're going to give the logout button a job in a moment
             $("#loginDropdown").html('<li><button type="button" class="btn width-75 filterButton" id="logoutButton">Log Out </button></li>')
-            let userFavoritesLayer = new L.FeatureGroup();
-            map.addLayer(userFavoritesLayer);
-
-            // change map marker icon to favorite icon
-            map.eachLayer(function(layer){
-              if (layer.hasOwnProperty('data')) {  // it's a marker
-              if (user.favorite_parks.includes(layer.data.site_id)) {  // it's a favorite
-                // here's the marker
-                var icon = L.icon({
-                  iconUrl: 'img/icons/heart.png',
-                  shadowUrl: 'img/icons/heart_shadow.png',
-
-                  iconAnchor: [33, 65], // point of the icon which will correspond to marker's location
-                  shadowAnchor: [33, 65],  // the same for the shadow
-                  popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
-                });
-
-                layer.setIcon(icon);
-                console.log(globals.overlayLayers['Site Markers']);
-                globals.overlayLayers['Site Markers'].removeLayer(layer);
-                userFavoritesLayer.addLayer(layer);
-               }
-              }
-            });
-
-            globals.userFavoriteOverlay = {'User Favorites': userFavoritesLayer}
+            configureUserFavorites(map, user);
             reinitializeMapOverlays(map, layerControl);
             layerControl.addOverlay(globals.userFavoriteOverlay['User Favorites'], 'User Favorites')
 
@@ -538,7 +547,6 @@ $(document).ready(function() {
   //  myInput.focus()
   //})
   mapFactory();
-
 
 // document ready
 });
