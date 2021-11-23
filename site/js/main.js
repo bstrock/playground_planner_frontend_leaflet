@@ -324,7 +324,16 @@ function popupFactory(feature, center) {
   if (stars.length > 0) {
     starText += '(' + stars.length + " Reviews)"
   }
-
+  console.log(comments)
+  let commentString = ""
+  if (comments.length > 0) {
+    commentString += '<b>User Reviews:</b><ul>'
+    for (let i = 0; i < comments.length; i++) {
+      commentString += '<li class="text-start comment-text"><i>"'+ comments[i] +'"</i></li>'
+    }
+    commentString += '</li>'
+  }
+  console.log(commentString)
   let directionsUrl = 'https://www.google.com/maps/dir/Current+Location/' + center.lat + ',' + center.lng
 
   let popupString = `
@@ -351,7 +360,14 @@ function popupFactory(feature, center) {
                 <span>`
                 + starText +
                `</span>
+                <br>
             </div>
+          </div>
+          <hr/>
+          <div class="row">
+            <div class="col container-fluid">`
+              + commentString +
+            `</div>
           </div>
         </div>
     </div>
