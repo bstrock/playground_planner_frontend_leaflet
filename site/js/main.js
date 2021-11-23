@@ -23,9 +23,9 @@ function mapFactory() {
     accessToken: 'pk.eyJ1IjoiYnN0cm9jayIsImEiOiJja3cxZnN6MTRhMzBlMnVxcGtvZWtja3RhIn0.2Xs4HMBYwnUQh5wurxmeDA'
   }).addTo(map);
   map.locate({setView: false})
+
   function onLocationFound(e) {
     globals['latlng'] = e.latlng;
-
   }
 
   map.on('locationfound', onLocationFound);
@@ -74,7 +74,7 @@ function mapFactory() {
     applyFilters(map, layerControl);
     reinitializeMapOverlays(map, layerControl);
     distanceSlider();
-
+    loginUser(map, layerControl);
 
 
   });
@@ -104,6 +104,9 @@ function reinitializeMapOverlays(map, layerControl) {
       if (globals.overlayLayers.hasOwnProperty('Search Radius')) {
         layerControl.removeLayer(globals.overlayLayers['Search Radius'])
       }
+      if (globals.hasOwnProperty('userFavoritesLayer')) {
+        layerControl.removeLayer(globals.userFavoritesLayer['User Favorites']);
+      }
 
       let overlayLayers = addPolygons(geojson, map);
       globals.overlayLayers = overlayLayers;
@@ -123,6 +126,9 @@ function reinitializeMapOverlays(map, layerControl) {
 
       layerControl.addOverlay(overlayLayers['Site Markers'], 'Site Markers');
       layerControl.addOverlay(overlayLayers['Playground Outlines'], 'Playground Outlines');
+      if (globals.hasOwnProperty('userFavoritesLayer')) {
+        layerControl.addOverlay(globals.userFavoritesLayer['User Favorites'], 'User Favorites');
+      }
       map.setView([44.855, -93.46], 13)
       console.log('END OF RE-INITIALIZE MAP OVERLAYS');
 
@@ -167,7 +173,6 @@ function resetFilters() {
 
 function applyFilters(map, layerControl) {
   console.log("TOP OF APPLYFILTERS")
-  console.log(map)
   $('#apply-filters').click(function() {
 
     // GET THE SEARCH RADIUS
@@ -255,7 +260,6 @@ function applyFilters(map, layerControl) {
 
       let bounds = $.getJSON('./json/ep_boundary.json', function () {
         $.when(bounds).done(function () {
-          console.log(bounds.responseJSON);
           let epBoundary = L.geoJSON(bounds.responseJSON, {
             style: {color: 'black', fillOpacity: 0}
           }).addTo(map);
@@ -269,7 +273,6 @@ function applyFilters(map, layerControl) {
 
       // SITUATE LAYERS IN LAYER CONTROL
       globals.overlayLayers = overlayLayers;
-      console.log(overlayLayers)
       layerControl.addOverlay(overlayLayers['Site Markers'], 'Site Markers');
       layerControl.addOverlay(overlayLayers['Playground Outlines'], 'Playground Outlines');
       layerControl.addOverlay(searchRadius, 'Search Radius')
@@ -302,7 +305,6 @@ function popupFactory(feature, center) {
       comments.push(reviews[i].comment)
     }
   }
-  console.log(stars)
   let starText = ''
   if (stars.length > 0) {
     let starVal = Math.round(average(stars))
@@ -355,7 +357,6 @@ function popupFactory(feature, center) {
 
 function addPolygons(data, map) {
   console.log("ADDPOLYGONS")
-  console.log(map)
   let geojson = data.features;
   let polyLayerGroup = new L.FeatureGroup();
   let pointLayerGroup = new L.FeatureGroup();
@@ -403,10 +404,115 @@ function addPolygons(data, map) {
         .setLatLng(center)
         .setContent(popupString)
     marker.bindPopup(popup)
+    marker.data = geojson[i].properties
     pointLayerGroup.addLayer(marker)
   }
 
   return overlayLayer
+}
+
+function loginUser(map, layerControl){
+  $('#submitLogin').click(function (e){
+    //stop submit the form, we will post it manually.
+
+    // Get form
+    var form = $('#loginForm')[0];
+
+    // FormData object
+    var data = new FormData(form);
+
+    // If you want to add an extra field for the FormData
+
+    // disabled the submit button
+    $("#submitLogin").prop("disabled", true);
+
+    // go get a token
+    $.ajax({
+      type: "POST",
+      enctype: 'multipart/form-data',
+      url: "http://localhost:8001/token",
+      data: data,
+      processData: false,
+      contentType: false,
+      cache: false,
+      timeout: 800000,
+      success: function (data) {
+        // save token data
+        globals.token = data
+        $("#submitLogin").prop("disabled", false);
+        $("#exampleModal").modal('hide')
+
+        // clear map content and reset view
+        resetFilters();
+
+        // get user info
+        var url = "http://localhost:8001/users/me/favorites";
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.setRequestHeader("Authorization", "Bearer " + globals.token.access_token);
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            // our token was validated
+            // get the user data
+            var user = JSON.parse(xhr.responseText);
+            globals.user = user
+            console.log(user)
+            // change the login button appropriately
+            $("#dropdownMenuButton1").html("Logged in as " + user.first_name + " " + user.last_name)
+
+            // change login/signup buttons to logout button
+            // we're going to give the logout button a job in a moment
+            $("#loginDropdown").html('<li><button type="button" class="btn width-75 filterButton" id="logoutButton">Log Out </button></li>')
+            let userFavoritesLayer = new L.FeatureGroup();
+            map.addLayer(userFavoritesLayer);
+
+            // change map marker icon to favorite icon
+            map.eachLayer(function(layer){
+              if (layer.hasOwnProperty('data')) {  // it's a marker
+              if (user.favorite_parks.includes(layer.data.site_id)) {  // it's a favorite
+                // here's the marker
+                var icon = L.icon({
+                  iconUrl: 'img/icons/heart.png',
+                  shadowUrl: 'img/icons/heart_shadow.png',
+
+                  iconAnchor: [33, 65], // point of the icon which will correspond to marker's location
+                  shadowAnchor: [33, 65],  // the same for the shadow
+                  popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
+                });
+
+                layer.setIcon(icon);
+                console.log(globals.overlayLayers['Site Markers']);
+                globals.overlayLayers['Site Markers'].removeLayer(layer);
+                userFavoritesLayer.addLayer(layer);
+               }
+              }
+            });
+
+            globals.userFavoriteOverlay = {'User Favorites': userFavoritesLayer}
+            reinitializeMapOverlays(map, layerControl);
+            layerControl.addOverlay(globals.userFavoriteOverlay['User Favorites'], 'User Favorites')
+
+          }};
+
+        xhr.send();
+
+
+
+      },
+      error: function (e) {
+        console.log("ERROR : ", e);
+        alert('Unable to log user in.  Please try again.')
+        $("#submitLogin").prop("disabled", false);
+      }
+    });
+
+
+
+  })
 }
 
 $(document).ready(function() {
@@ -424,8 +530,14 @@ $(document).ready(function() {
   $('[data-toggle="offcanvas"], #navToggle').on('click', function () {
     $('.offcanvas-collapse').toggleClass('open')
   })
-  mapFactory();
 
+  var myModal = document.getElementById('myModal')
+  var myInput = document.getElementById('myInput')
+
+  //myModal.addEventListener('shown.bs.modal', function () {
+  //  myInput.focus()
+  //})
+  mapFactory();
 
 
 // document ready

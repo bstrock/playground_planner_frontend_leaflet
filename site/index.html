@@ -21,11 +21,14 @@
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/bootstrap.css">
   <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
         integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
         crossorigin=""/>
+
+  <link rel="stylesheet" href="css/style.css">
 
   <meta name="theme-color" content="#fafafa">
 </head>
@@ -36,7 +39,7 @@
 
 
     <!--  START NAVBAR   -->
-    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark navbar-offcanvas">
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark navbar-offcanvas" style="background-color: #0c4128">
       <a class="navbar-brand mr-auto" href="#">Eden Prairie Playground Picker</a>
 
       <!--     If you want to show the button online on mobile use this toggle
@@ -52,9 +55,9 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="navbar-collapse offcanvas-collapse" id="sidebar">
+      <div class="navbar-collapse offcanvas-collapse" id="sidebar" style="background-color: #badbcc">
         <ul class="navbar-nav mr-auto">
-          <li class="navbar-text"><h2><b>Filter by...</b></h2></li>
+          <li class="navbar-text"><h2 style="color: black"><b>Filter by...</b></h2></li>
           <li class="nav-item">
 
             <!-- START ACCORDION -->
@@ -262,18 +265,22 @@
             </div>
             <div><br><br></div>
           <li class="nav-item dropdown">
-            <button class="btn btn-secondary dropdown-toggle filterButton" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            <button class="btn btn-secondary dropdown-toggle" style="width: 100%" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
               User Account
             </button>
-            <ul class="nav-item dropdown-menu" aria-labelledby="dropdownMenuButton1">
-              <li><a class="dropdown-item" href="#">Login</a></li>
+            <ul class="nav-item dropdown-menu" id="loginDropdown" aria-labelledby="dropdownMenuButton1">
+              <li><button type="button" class="btn width-75 filterButton" id="loginButton" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Login
+              </button></li>
               <li><a class="dropdown-item" href="#">Sign Up</a></li>
             </ul>
           </li>
         </ul>
 
 
+
       </div>
+
     </nav>
     <!--  END NAVBAR   -->
 
@@ -281,6 +288,32 @@
   <!--/.container    -->
 
 </section>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="padding:35px 50px;">
+
+        <h4><span class="glyphicon glyphicon-lock"></span>Login</h4>
+        <button type="button" class="close" data-dismiss="exampleModal">X</button>
+      </div>
+      <div class="modal-body" style="padding:40px 50px;">
+        <form role="form" id="loginForm">
+          <div class="form-group">
+            <label for="username"><span class="glyphicon glyphicon-user"></span> Username</label>
+            <input type="text" class="form-control" id="username" placeholder="Enter email" name="username" required>
+          </div>
+          <div class="form-group">
+            <label for="password"><span class="glyphicon glyphicon-eye-open"></span> Password</label>
+            <input type="password" class="form-control" id="password" placeholder="Enter password" name="password" required>
+          </div>
+          <br>
+          <button type="submit" class="btn btn-success btn-block" id="submitLogin"><span class="glyphicon glyphicon-off"></span>Submit Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="map"></div>
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
         crossorigin="anonymous"></script>
@@ -291,6 +324,7 @@
 <script src="js/plugins.js"></script>
 <script src="js/bootstrap.js"></script>
 <script src="js/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
 
 <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
 <script>
