@@ -104,12 +104,16 @@ function reinitializeMapOverlays(map, layerControl) {
       if (globals.overlayLayers.hasOwnProperty('Search Radius')) {
         layerControl.removeLayer(globals.overlayLayers['Search Radius'])
       }
-      if (globals.hasOwnProperty('userFavoritesLayer')) {
-        layerControl.removeLayer(globals.userFavoritesLayer['User Favorites']);
-      }
 
       let overlayLayers = addPolygons(geojson, map);
       globals.overlayLayers = overlayLayers;
+
+      if (globals.hasOwnProperty('user')) {
+        layerControl.removeLayer(globals.userFavoriteOverlay['User Favorites']);
+        configureUserFavorites(map, globals.user)
+        layerControl.addOverlay(globals.userFavoriteOverlay['User Favorites'], 'User Favorites');
+
+      }
 
       console.log("IN QUERY AJAX AFTER ADDPOLYGONS");
 
@@ -126,9 +130,7 @@ function reinitializeMapOverlays(map, layerControl) {
 
       layerControl.addOverlay(overlayLayers['Site Markers'], 'Site Markers');
       layerControl.addOverlay(overlayLayers['Playground Outlines'], 'Playground Outlines');
-      if (globals.hasOwnProperty('userFavoritesLayer')) {
-        layerControl.addOverlay(globals.userFavoritesLayer['User Favorites'], 'User Favorites');
-      }
+
       map.setView([44.855, -93.46], 13)
       console.log('END OF RE-INITIALIZE MAP OVERLAYS');
 
@@ -148,8 +150,7 @@ function reinitializeMapOverlays(map, layerControl) {
       });
       $('#distance-label').html("4 ");
 
-      $('.offcanvas-collapse').toggleClass('open')
-
+      $('.offcanvas-collapse').removeClass('open')
 
     });
   });
@@ -477,7 +478,7 @@ function loginUser(map, layerControl){
         $("#exampleModal").modal('hide')
 
         // clear map content and reset view
-        resetFilters();
+        reinitializeMapOverlays();
 
         // get user info
         var url = "http://localhost:8001/users/me/favorites";
@@ -508,8 +509,7 @@ function loginUser(map, layerControl){
           }};
 
         xhr.send();
-
-
+        $('.offcanvas-collapse').removeClass('open')
 
       },
       error: function (e) {
@@ -518,8 +518,6 @@ function loginUser(map, layerControl){
         $("#submitLogin").prop("disabled", false);
       }
     });
-
-
 
   })
 }
