@@ -298,18 +298,18 @@ function popupFactory(feature, center) {
 
 
   let props = feature.properties;
-  if (props.site_id === "S001") {
-
-  }
   let keys = Object.keys(props)
   let stars = []
   let comments = []
+  let names = []
 
   if (keys.includes('reviews')) {
     let reviews = props['reviews'];
     for (var i = 0; i < reviews.length; i++) {
       stars.push(reviews[i].stars)
       comments.push(reviews[i].comment)
+      names.push(reviews[i].first_name)
+      console.log(reviews[i])
     }
   }
   let starText = ''
@@ -327,11 +327,16 @@ function popupFactory(feature, center) {
   console.log(comments)
   let commentString = ""
   if (comments.length > 0) {
-    commentString += '<b>User Reviews:</b><ul>'
     for (let i = 0; i < comments.length; i++) {
-      commentString += '<li class="text-start comment-text"><i>"'+ comments[i] +'"</i></li>'
+      commentString += '<span class="text-start comment-text"><i>"'+ comments[i] +'"</i></span><br>'
     }
-    commentString += '</li>'
+
+    if (globals.hasOwnProperty('user')){
+      // logic to add review
+      // TODO: make button
+      // TODO: make review modal
+      // TODO: attach click listener to button that posts to API
+    }
   }
   console.log(commentString)
   let directionsUrl = 'https://www.google.com/maps/dir/Current+Location/' + center.lat + ',' + center.lng
@@ -345,7 +350,7 @@ function popupFactory(feature, center) {
         <div class="card-body row address-box">
             <div class="col container popup-address">
                 
-                    <span class="text-md mt-1"><b>Address: </b></span><br>
+                    <span class="text-md mt-1"><h6><b>Address: </b></h6></span>
                     <span class="text-left">`
                     + props.addr_street1 + '<br>' + props.addr_city + ', ' + props.addr_state + ' '+ props.addr_zip +
                   `</span>
@@ -356,15 +361,14 @@ function popupFactory(feature, center) {
                   <a href="` + directionsUrl + `" type="button" class="btn btn-light directions-button" target="_blank" rel="noopener noreferrer">Directions</a>
               </span>
             </div>
-            <div class="row">
-                <span>`
+          </div>
+          <hr/>
+          <div class="row">
+                <span><h6><b>User Reviews:</b></h6> `
                 + starText +
                `</span>
                 <br>
             </div>
-          </div>
-          <hr/>
-          <div class="row">
             <div class="col container-fluid">`
               + commentString +
             `</div>
