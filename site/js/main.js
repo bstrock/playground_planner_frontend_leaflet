@@ -112,7 +112,6 @@ function reinitializeMapOverlays(map, layerControl) {
         layerControl.removeLayer(globals.userFavoriteOverlay['User Favorites']);
         configureUserFavorites(map, globals.user)
         layerControl.addOverlay(globals.userFavoriteOverlay['User Favorites'], 'User Favorites');
-
       }
 
       console.log("IN QUERY AJAX AFTER ADDPOLYGONS");
@@ -145,7 +144,7 @@ function reinitializeMapOverlays(map, layerControl) {
         this.checked = false;
       });
 
-      $("sportsFacilitiesAccordion").children("input:checked").map(function() {
+      $("#sportsFacilitiesAccordion").children("input:checked").map(function() {
         this.checked = false;
       });
       $('#distance-label').html("4 ");
@@ -330,13 +329,6 @@ function popupFactory(feature, center) {
     for (let i = 0; i < comments.length; i++) {
       commentString += '<span class="text-start comment-text"><i>"'+ comments[i] +'"</i></span><br>'
     }
-
-    if (globals.hasOwnProperty('user')){
-      // logic to add review
-      // TODO: make button
-      // TODO: make review modal
-      // TODO: attach click listener to button that posts to API
-    }
   }
   console.log(commentString)
   let directionsUrl = 'https://www.google.com/maps/dir/Current+Location/' + center.lat + ',' + center.lng
@@ -363,7 +355,7 @@ function popupFactory(feature, center) {
             </div>
           </div>
           <hr/>
-          <div class="row">
+          <div class="row" id="review-` + props.site_id + `">
                 <span><h6><b>User Reviews:</b></h6> `
                 + starText +
                `</span>
@@ -371,12 +363,26 @@ function popupFactory(feature, center) {
             </div>
             <div class="col container-fluid">`
               + commentString +
-            `</div>
-          </div>
+            `</div>`
+
+  console.log(globals)
+  if (globals.hasOwnProperty('user')){
+    // logic to add review
+    console.log('USER BUTTON TRIGGER')
+    let submitReviewButton = "<div class='col container-fluid'><button type='button' class='btn' id='submitReviewButton' data-bs-toggle='modal' data-bs-target='#submitReviewModal'>Submit Review</button></div>"
+    popupString += submitReviewButton
+    // SPLIT STRING AND APPEND THIS, THEN THE REST
+    // TODO: make review modal
+    // TODO: attach click listener to button that posts to API
+  }
+
+  popupString +=`
+            </div>
         </div>
     </div>
   </div>
   `
+
 
 
   return popupString
@@ -498,7 +504,7 @@ function loginUser(map, layerControl){
         $("#exampleModal").modal('hide')
 
         // clear map content and reset view
-        reinitializeMapOverlays();
+        //reinitializeMapOverlays();
 
         // get user info
         var url = "http://localhost:8001/users/me/favorites";
@@ -523,9 +529,8 @@ function loginUser(map, layerControl){
             // we're going to give the logout button a job in a moment
             $("#loginDropdown").html('<li><button type="button" class="btn width-75 filterButton" id="logoutButton">Log Out </button></li>')
             configureUserFavorites(map, user);
-            reinitializeMapOverlays(map, layerControl);
+            $("#reset-filters").trigger('click')
             layerControl.addOverlay(globals.userFavoriteOverlay['User Favorites'], 'User Favorites')
-
           }};
 
         xhr.send();
