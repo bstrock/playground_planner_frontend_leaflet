@@ -164,14 +164,6 @@ function distanceSlider() {
   });
 }
 
-function resetFilters() {
-  console.log("TOP OF RESETFILTERS")
-  $('#reset-filters').click(function() {
-    console.log('CLICKED RESET FILTERS')
-  })
-
-}
-
 function applyFilters(map, layerControl) {
   console.log("TOP OF APPLYFILTERS")
   $('#apply-filters').click(function() {
@@ -309,7 +301,6 @@ function popupFactory(feature, center) {
       stars.push(reviews[i].stars)
       comments.push(reviews[i].comment)
       names.push(reviews[i].first_name)
-      console.log(reviews[i])
     }
   }
   let starText = ''
@@ -324,14 +315,12 @@ function popupFactory(feature, center) {
   if (stars.length > 0) {
     starText += '(' + stars.length + " Reviews)"
   }
-  console.log(comments)
   let commentString = ""
   if (comments.length > 0) {
     for (let i = 0; i < comments.length; i++) {
       commentString += '<span class="text-start comment-text"><i>"'+ comments[i] +'"</i></span><br>'
     }
   }
-  console.log(commentString)
   let directionsUrl = 'https://www.google.com/maps/dir/Current+Location/' + center.lat + ',' + center.lng
 
   let popupString = `
@@ -366,11 +355,9 @@ function popupFactory(feature, center) {
               + commentString +
             `</div>`
 
-  console.log(globals)
   if (globals.hasOwnProperty('user')){
     // logic to add review
-    console.log('USER BUTTON TRIGGER')
-    let submitReviewButton = "<div class='col container-fluid'><button type='button' class='btn custom-button submit-button' data-bs-toggle='modal' data-bs-target='#submitReviewModal'>Submit Review</button></div>"
+    let submitReviewButton = "<div class='col container-fluid'><button type='button' class='btn custom-button submit-button' id='" + props.site_id + "' data-bs-toggle='modal' data-bs-target='#submitReviewModal'>Submit Review</button></div>"
     popupString += submitReviewButton
     // SPLIT STRING AND APPEND THIS, THEN THE REST
     // TODO: make review modal
@@ -534,6 +521,41 @@ function loginUser(map, layerControl){
             $("#reset-filters").trigger('click')
             layerControl.addOverlay(globals.userFavoriteOverlay['User Favorites'], 'User Favorites')
 
+            // FUNCTIONALITY FOR SUBMIT REVIEW
+            $('#submitReviewModalButton').click(function (e) {
+              e.preventDefault();
+              //stop submit the form, we will post it manually.
+
+              // Get form
+              var reviewForm = $('#submitReview')[0];
+              console.log(reviewForm)
+              // FormData object
+              var reviewFormData = new FormData(reviewForm);
+
+              let review = {
+                'stars': reviewFormData.get('stars'),
+                'comment': reviewFormData.get('comment'),
+                'site_id': globals.reviewedSite
+              }
+              let reviewString = "?stars=" + review.stars + '&comment=' + review.comment + "&site_id=" + review.site_id;
+
+              $("#submitReview").prop("disabled", false);
+              $("#submitReviewModal").modal('hide')
+
+              var submitReviewUrl = "http://localhost:8001/submit/review" + reviewString;
+
+              var review_xhr = new XMLHttpRequest();
+              review_xhr.open("POST", submitReviewUrl);
+              review_xhr.setRequestHeader("Accept", "application/json");
+              review_xhr.setRequestHeader("Authorization", "Bearer " + globals.token.access_token);
+              review_xhr.onreadystatechange = function () {
+                if (review_xhr.readyState === 4) {
+                  console.log('oh snaps it worked')
+                  }
+              }
+            review_xhr.send();
+            });
+
 
           }};
 
@@ -548,7 +570,7 @@ function loginUser(map, layerControl){
       }
     });
 
-  })
+  });
 }
 function starsSlider() {
   $("#stars-slider").on('input', function(){
