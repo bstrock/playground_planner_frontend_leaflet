@@ -350,11 +350,11 @@ function popupFactory(feature, center) {
           <div class="col container">
             <div class="row">
               <span class="text-right align-right w-25">
-                  <a href="` + directionsUrl + `" type="button" class="btn btn-light directions-button" target="_blank" rel="noopener noreferrer">Directions</a>
+                  <a href="` + directionsUrl + `" type="button" class="btn custom-button" target="_blank" rel="noopener noreferrer">Directions</a>
               </span>
             </div>
           </div>
-          <hr/>
+          <hr class="divider-line"/>
           <div class="row" id="review-` + props.site_id + `">
                 <span><h6><b>User Reviews:</b></h6> `
                 + starText +
@@ -369,7 +369,7 @@ function popupFactory(feature, center) {
   if (globals.hasOwnProperty('user')){
     // logic to add review
     console.log('USER BUTTON TRIGGER')
-    let submitReviewButton = "<div class='col container-fluid'><button type='button' class='btn' id='submitReviewButton' data-bs-toggle='modal' data-bs-target='#submitReviewModal'>Submit Review</button></div>"
+    let submitReviewButton = "<div class='col container-fluid'><button type='button' class='btn custom-button submit-button' data-bs-toggle='modal' data-bs-target='#submitReviewModal'>Submit Review</button></div>"
     popupString += submitReviewButton
     // SPLIT STRING AND APPEND THIS, THEN THE REST
     // TODO: make review modal
@@ -529,8 +529,13 @@ function loginUser(map, layerControl){
             // we're going to give the logout button a job in a moment
             $("#loginDropdown").html('<li><button type="button" class="btn width-75 filterButton" id="logoutButton">Log Out </button></li>')
             configureUserFavorites(map, user);
+
             $("#reset-filters").trigger('click')
             layerControl.addOverlay(globals.userFavoriteOverlay['User Favorites'], 'User Favorites')
+            $(".submit-button").click(function() {
+              console.log('CLICKED SUBMIT REVIEW')
+            });
+
           }};
 
         xhr.send();

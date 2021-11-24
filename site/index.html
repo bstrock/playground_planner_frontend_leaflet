@@ -314,6 +314,43 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="submitReviewModal" tabindex="-1" aria-labelledby="submitReviewModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="padding:35px 50px;">
+
+        <h4>Login</h4>
+        <button type="button" class="close" data-dismiss="submitReviewModal">x</button>
+      </div>
+      <div class="modal-body" style="padding:40px 50px;">
+        <form role="form" id="submitReview">
+          <div class="form-group">
+            <label for="stars-slider" class="h5"><span class="glyphicon glyphicon-user" id="stars-slider-label"></span>How Many Stars?</label>
+            <input
+                    type="range"
+                    class="form-control"
+                    min="1"
+                    max="4"
+                    value="4"
+                    class="slider"
+                    id="stars-slider"
+                    name="stars"
+            >
+            <br>
+          </div>
+          <div class="form-group">
+            <label for="comment" class="h5"><span class="glyphicon glyphicon-eye-open"></span>User Comment</label>
+            <input type="text" class="form-control" id="comment" placeholder="What would you say about this playground?" name="comment">
+          </div>
+          <br>
+          <button type="submit" class="btn btn-success btn-block" id="submitReviewModalButton"><span class="glyphicon glyphicon-off"></span>Submit Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="map"></div>
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
         crossorigin="anonymous"></script>

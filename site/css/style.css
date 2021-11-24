@@ -203,7 +203,7 @@ body {
   background-color: #ffffff;
   border-radius: 5px;
   border-width: 3px;
-  border-color: #96f97b
+  border-color: #96f97b;
 }
 
 .leaflet-popup-content-wrapper {
@@ -217,4 +217,8 @@ body {
 
 .card-body{
   background-color: mintcream;
+}
+
+.divider-line{
+  width: 95%;
 }
