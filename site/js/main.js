@@ -523,7 +523,6 @@ function loginUser(map, layerControl){
             $(document).on('click','.submit-button', function(e) {
               // wtf really though with this
               globals.reviewedSite = this.id
-              console.log(globals.reviewedSite)
             });
             // FUNCTIONALITY FOR SUBMIT REVIEW
             $('#submitReviewModalButton').click(function (e) {
@@ -554,7 +553,7 @@ function loginUser(map, layerControl){
               review_xhr.setRequestHeader("Authorization", "Bearer " + globals.token.access_token);
               review_xhr.onreadystatechange = function () {
                 if (review_xhr.readyState === 4) {
-                  console.log('oh snaps it worked')
+                  $("#reset-filters").trigger('click')
                   }
               }
             review_xhr.send();
