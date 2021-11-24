@@ -74,6 +74,7 @@ function mapFactory() {
     applyFilters(map, layerControl);
     reinitializeMapOverlays(map, layerControl);
     distanceSlider();
+    starsSlider();
     loginUser(map, layerControl);
 
 
@@ -532,9 +533,7 @@ function loginUser(map, layerControl){
 
             $("#reset-filters").trigger('click')
             layerControl.addOverlay(globals.userFavoriteOverlay['User Favorites'], 'User Favorites')
-            $(".submit-button").click(function() {
-              console.log('CLICKED SUBMIT REVIEW')
-            });
+
 
           }};
 
@@ -551,6 +550,18 @@ function loginUser(map, layerControl){
 
   })
 }
+function starsSlider() {
+  $("#stars-slider").on('input', function(){
+
+    let stars = $(this).val();
+    let starText = '';
+    for (var i = 0; i < stars; i++) {
+      starText += '<img src="img/icons/star.png" height="25" width="25"> '
+  }
+    $('#stars-slider-label').html(starText);
+  });
+}
+
 
 $(document).ready(function() {
   // executes when HTML-Document is loaded and DOM is ready
