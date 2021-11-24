@@ -520,7 +520,11 @@ function loginUser(map, layerControl){
 
             $("#reset-filters").trigger('click')
             layerControl.addOverlay(globals.userFavoriteOverlay['User Favorites'], 'User Favorites')
-
+            $(document).on('click','.submit-button', function(e) {
+              // wtf really though with this
+              globals.reviewedSite = this.id
+              console.log(globals.reviewedSite)
+            });
             // FUNCTIONALITY FOR SUBMIT REVIEW
             $('#submitReviewModalButton').click(function (e) {
               e.preventDefault();
